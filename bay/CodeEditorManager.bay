@@ -1,0 +1,118 @@
+/*!
+ *  Bayrell Core Library
+ *
+ *  (c) Copyright 2018-2019 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace Core.Components.CodeEditor;
+
+use Runtime.Reference;
+use Runtime.RuntimeUtils;
+use Core.Components.CodeEditor.CodeEditorModel;
+use Core.UI.Events.MountEvent;
+use Core.UI.Render.CoreManager;
+
+
+class CodeEditorManager extends CoreManager
+{
+	
+	public CodeEditorModel model;
+	public Reference code_editor = new Reference();
+	public Reference textarea_editor = new Reference();
+	
+	
+	/**
+	 * Main click
+	 */
+	public async void onMountFileEditor(UIEvent<MountEvent> e)
+	{
+		this.code_editor.ref.style.width = this.code_editor.ref.offsetWidth ~ "px";
+	}
+	
+	
+	
+	/**
+	 * Main click
+	 */
+	public async void onMountEditor(UIEvent<MountEvent> e)
+	{
+		#switch
+		#case ifcode ES6 then
+		
+		this.textarea_editor.ref.editor = CodeMirror.fromTextArea(
+			this.textarea_editor.ref, 
+			{
+				autoRefresh: true,
+				lineNumbers: true,
+				lineWrapping: true,
+				matchBrackets: true,
+				/*mode: "text/x-scss",*/
+			}
+		);
+		this.textarea_editor.ref.editor.on("change", () => {
+			if (this.timer_change){
+				clearTimeout(this.timer_change);
+				this.timer_change = null;
+			}
+			this.timer_change = setTimeout(() => {
+				var content = this.textarea_editor.ref.editor.getValue();
+				if (content != this.model.content)
+				{
+					this.updateModel(new Runtime.Dict({
+						"content": content,
+					}));
+				}
+			}, 250);
+		});
+		
+		this.textarea_editor.ref.editor.setValue( this.model.content );
+		#endswitch
+	}
+	
+	
+	
+	/**
+	 * Driver update manager
+	 */
+	public void onUpdateManager(CoreModel old_model, CoreModel new_model)
+	{
+		if (this.isModelUpdatedByDriver())
+		{
+			#switch
+			#case ifcode ES6 then
+			if (this.textarea_editor.ref && this.textarea_editor.ref.editor)
+			{
+				var content = this.textarea_editor.ref.editor.getValue();
+				if (content != this.model.content)
+				{
+					this.textarea_editor.ref.editor.setValue( this.model.content );
+				}
+			}
+			#endswitch
+		}
+	}
+	
+	
+	
+	/**
+	 * Overload driver render
+	 * @return bool
+	 */
+	public bool driverRenderOverload(mixed elem, UIStruct ui)
+	{
+		return true;
+	}
+	
+}
