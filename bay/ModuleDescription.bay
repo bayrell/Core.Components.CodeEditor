@@ -19,11 +19,11 @@
 namespace Core.Components.CodeEditor;
 
 use Runtime.Provider;
+use Runtime.Interfaces.ComponentInterface;
 use Runtime.Interfaces.ContextInterface;
 use Runtime.Interfaces.ModuleDescriptionInterface;
 use Core.Interfaces.ApiDeclaringInterface;
 use Core.Interfaces.RoutesDeclaringInterface;
-use Core.Interfaces.ComponentInterface;
 use Core.UI.Annotations.ApiInstance;
 use Core.UI.Annotations.RoutesInstance;
 use Core.UI.Render.RenderContainer;
@@ -107,25 +107,9 @@ class ModuleDescription implements
 	
 	
 	/**
-	 * Returns enities
-	 */
-	lambda Collection<string> assets(RenderContainer container) =>
-	[
-	];
-	
-	
-	
-	/**
 	 * Returns sync loaded files
 	 */		
-	public static Collection<string> resources(RenderContainer container) => null;	
-	
-	
-	
-	/**
-	 * Init render container
-	 */
-	public static RenderContainer initContainer(RenderContainer container) => container;
+	public static Collection<string> resources() => null;
 	
 	
 	
